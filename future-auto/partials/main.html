@@ -1,0 +1,243 @@
+<div class="background"></div>
+  <div class="search-section">
+    <p class="search-subtitle">Найдите автомобили на продажу рядом с вами</p>
+    <h1 class="search-title">Найдите свой идеальный автомобиль</h1>
+    <div class="filter-options">
+      <span class="filter-option selected" onclick="setFilter(this)">Все</span>
+      <span class="filter-option" onclick="setFilter(this)">Новые</span>
+      <span class="filter-option" onclick="setFilter(this)">Б/У</span>
+    </div>
+
+    <div class="search-box">
+      <div class="dropdown">
+        <button id="brandButton">Любые марки</button>
+        <div class="dropdown-content" id="brandList">
+          <p onclick="selectBrand('BMW')">BMW</p>
+          <p onclick="selectBrand('Audi')">Audi</p>
+          <p onclick="selectBrand('Mercedes')">Mercedes</p>
+          <p onclick="selectBrand('Toyota')">Toyota</p>
+          <p onclick="selectBrand('Honda')">Honda</p>
+          <p onclick="selectBrand('Ford')">Ford</p>
+          <p onclick="selectBrand('Chevrolet')">Chevrolet</p>
+          <p onclick="selectBrand('Volkswagen')">Volkswagen</p>
+          <p onclick="selectBrand('Nissan')">Nissan</p>
+          <p onclick="selectBrand('Hyundai')">Hyundai</p>
+          <p onclick="selectBrand('Kia')">Kia</p>
+          <p onclick="selectBrand('Peugeot')">Peugeot</p>
+          <p onclick="selectBrand('Renault')">Renault</p>
+          <p onclick="selectBrand('Skoda')">Skoda</p>
+          <p onclick="selectBrand('Mazda')">Mazda</p>
+          <p onclick="selectBrand('Subaru')">Subaru</p>
+          <p onclick="selectBrand('Volvo')">Volvo</p>
+          <p onclick="selectBrand('Land Rover')">Land Rover</p>
+          <p onclick="selectBrand('Jaguar')">Jaguar</p>
+          <p onclick="selectBrand('Lexus')">Lexus</p>
+          <p onclick="selectBrand('Porsche')">Porsche</p>
+          <p onclick="selectBrand('Ferrari')">Ferrari</p>
+          <p onclick="selectBrand('Lamborghini')">Lamborghini</p>
+          <p onclick="selectBrand('Tesla')">Tesla</p>
+          <p onclick="selectBrand('Jeep')">Jeep</p>
+          <p onclick="selectBrand('Dodge')">Dodge</p>
+          <p onclick="selectBrand('Chrysler')">Chrysler</p>
+          <p onclick="selectBrand('Suzuki')">Suzuki</p>
+          <p onclick="selectBrand('Mitsubishi')">Mitsubishi</p>
+          <p onclick="selectBrand('Opel')">Opel</p>
+          <p onclick="selectBrand('Mini')">Mini</p>
+          <p onclick="selectBrand('Alfa Romeo')">Alfa Romeo</p>
+          <p onclick="selectBrand('Citroen')">Citroen</p>
+          <p onclick="selectBrand('FIAT')">FIAT</p>
+          <p onclick="selectBrand('Genesis')">Genesis</p>
+          <p onclick="selectBrand('Geely')">Geely</p>
+          <p onclick="selectBrand('Great Wall')">Great Wall</p>
+          <p onclick="selectBrand('BYD')">BYD</p>
+          <p onclick="selectBrand('Chery')">Chery</p>
+          <p onclick="selectBrand('MG')">MG</p>
+          <p onclick="selectBrand('SSANGYONG')">SSANGYONG</p>
+          <p onclick="selectBrand('Isuzu')">Isuzu</p>
+          <p onclick="selectBrand('MAZ')">MAZ</p>
+          <p onclick="selectBrand('Lada')">Lada</p>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button id="modelButton">Любые модели</button>
+        <div class="dropdown-content" id="modelList"></div>
+      </div>
+      
+      <div class="dropdown">
+        <input type="number" class="price-input" placeholder="Цена любая" min="0" max="500000">
+      </div>
+      
+      <button class="btn" onclick="performSearch()">🔍 Искать авто</button>
+    </div>
+    <p class="recommended-text">Или посмотрите рекомендуемую модель</p>
+    <div class="car-types">
+      <div onclick="navigateToCatalog('suv')" class="car-type-btn">🚙 Внедорожник</div>
+	<div onclick="navigateToCatalog('sedan')" class="car-type-btn">🚗 Седан</div>
+	<div onclick="navigateToCatalog('hatchback')" class="car-type-btn">🚘 Хэтчбэк</div>
+	<div onclick="navigateToCatalog('coupe')" class="car-type-btn">🏎️ Купе</div>
+    </div>
+    
+    <div class="recommended-cars" id="recommendedCars"></div>
+  </div>
+  
+  <script>
+    // Данные для рекомендуемых автомобилей
+    const recommendedCars = [
+      {
+        id: 1,
+        brand: 'Toyota',
+        model: 'Camry',
+        price: '2 450 000',
+        image: 'https://gaztormoz.ru/_next/image?url=https%3A%2F%2Fstatic.gaztormoz.ru%2Fchina%2FModels%2FImages%2F1714470011720.jpeg&w=2048&q=75/1200x900n'
+      },
+      {
+        id: 2,
+        brand: 'BMW',
+        model: 'X5',
+        price: '6 890 000',
+        image: 'https://avatars.mds.yandex.net/get-autoru-vos/2021936/a4e06ec3ec1f96d539a96eb1c9f9b1c3/1200x900n'
+      },
+      {
+        id: 3,
+        brand: 'Audi',
+        model: 'A6',
+        price: '4 120 000',
+        image: 'https://avatars.mds.yandex.net/i?id=c0ea7b8d75d1b28d365e538c651c14a0_l-8498375-images-thumbs&n=13/1200x900n'
+      },
+      {
+        id: 4,
+        brand: 'Skoda',
+        model: 'Superb',
+        price: '2 950 000',
+        image: 'https://avatars.mds.yandex.net/get-autoru-vos/2177055/e49e3cbe7278978151aa5a83e7f1b8e0/1200x900'
+      }
+    ];
+
+    // Загрузка рекомендуемых автомобилей
+    function loadRecommendedCars() {
+      const container = document.getElementById('recommendedCars');
+      container.innerHTML = '';
+      
+      recommendedCars.forEach(car => {
+        const carElement = document.createElement('div');
+        carElement.className = 'recommended-car';
+        carElement.innerHTML = `
+          <img src="${car.image}" alt="${car.brand} ${car.model}">
+          <h3>${car.brand} ${car.model}</h3>
+          <p>${car.price} ₽</p>
+          <button class="btn" style="padding: 8px 15px; font-size: 14px;" onclick="addToCart(${car.id})">В корзину</button>
+        `;
+        container.appendChild(carElement);
+      });
+    }
+
+    // Добавление в корзину
+    function addToCart(carId) {
+      const car = recommendedCars.find(c => c.id === carId);
+      if (car) {
+        alert(`Автомобиль ${car.brand} ${car.model} добавлен в корзину!`);
+        // Здесь можно добавить логику для реального добавления в корзину
+      }
+    }
+
+    // Поиск автомобилей
+    function performSearch() {
+      const brand = document.getElementById('brandButton').textContent;
+      const model = document.getElementById('modelButton').textContent;
+      const price = document.querySelector('.price-input').value;
+      
+      const params = new URLSearchParams();
+      
+      // Обработка параметров
+      if (brand !== 'Любые марки') params.set('brand', brand);
+      if (model !== 'Любые модели') params.set('model', model);
+      if (price) params.set('maxPrice', price);
+      
+      // Всегда перенаправляем в каталог
+      window.location.href = `#catalog?${params.toString()}`;
+    }
+    
+    function navigateToCatalog(type) {
+      window.location.href = `#catalog?bodyType=${type}`;
+    }
+
+    // Управление фильтрами
+    function setFilter(selected) {
+      document.querySelectorAll(".filter-option").forEach(el => el.classList.remove("selected"));
+      selected.classList.add("selected");
+    }
+
+    const modelsByBrand = {
+      "BMW": ["X5", "X3", "3 Series", "5 Series", "7 Series"],
+      "Audi": ["A4", "A6", "Q5", "Q7"],
+      "Mercedes": ["C-Class", "E-Class", "GLC", "GLE"],
+      "Toyota": ["Camry", "Corolla", "RAV4", "Highlander"],
+      "Honda": ["Civic", "Accord", "CR-V", "HR-V"],
+      "Ford": ["Focus", "Mustang", "Explorer", "F-150"],
+      "Chevrolet": ["Malibu", "Tahoe", "Camaro"],
+      "Volkswagen": ["Golf", "Passat", "Tiguan"],
+      "Nissan": ["Altima", "Sentra", "Rogue"],
+      "Hyundai": ["Elantra", "Tucson", "Santa Fe"],
+      "Kia": ["Sportage", "Sorento", "Optima"],
+      "Peugeot": ["208", "308", "3008"],
+      "Renault": ["Clio", "Megane", "Koleos"],
+      "Skoda": ["Octavia", "Superb", "Kodiaq"],
+      "Mazda": ["Mazda3", "CX-5", "MX-5"],
+      "Subaru": ["Impreza", "Forester", "Outback"],
+      "Volvo": ["XC40", "XC60", "XC90"],
+      "Land Rover": ["Range Rover", "Discovery"],
+      "Jaguar": ["F-Type", "XF"],
+      "Lexus": ["RX", "NX", "IS"],
+      "Porsche": ["911", "Cayenne", "Panamera"],
+      "Ferrari": ["488", "F8", "Roma"],
+      "Lamborghini": ["Huracan", "Urus", "Aventador"],
+      "Tesla": ["Model 3", "Model S", "Model X", "Model Y"],
+      "Jeep": ["Wrangler", "Cherokee", "Grand Cherokee"],
+      "Dodge": ["Charger", "Challenger", "Durango"],
+      "Chrysler": ["300", "Pacifica"],
+      "Suzuki": ["Swift", "Vitara", "Jimny"],
+      "Mitsubishi": ["Outlander", "Lancer"],
+      "Opel": ["Astra", "Insignia"],
+      "Mini": ["Cooper", "Countryman"],
+      "Alfa Romeo": ["Giulia", "Stelvio"],
+      "Citroen": ["C3", "C5 Aircross"],
+      "FIAT": ["500", "Panda"],
+      "Genesis": ["G70", "G80"],
+      "Geely": ["Atlas", "Coolray"],
+      "Great Wall": ["Haval H6"],
+      "BYD": ["Han", "Tang"],
+      "Chery": ["Tiggo 7", "Arrizo 5"],
+      "MG": ["ZS", "HS"],
+      "SSANGYONG": ["Korando", "Tivoli"],
+      "Isuzu": ["D-Max", "MU-X"],
+      "MAZ": ["MAZ-5440"],
+      "Lada": ["Granta", "Vesta", "Xray", "Niva"]
+    };
+
+    function selectBrand(brand) {
+      document.getElementById("brandButton").textContent = brand;
+      updateModels(brand);
+    }
+    
+    function updateModels(brand) {
+      let modelList = document.getElementById("modelList");
+      modelList.innerHTML = "";
+      
+      if (modelsByBrand[brand]) {
+        modelsByBrand[brand].forEach(model => {
+          let p = document.createElement("p");
+          p.textContent = model;
+          p.onclick = function () {
+            document.getElementById("modelButton").textContent = model;
+          };
+          modelList.appendChild(p);
+        });
+      }
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRecommendedCars();
+    });
+  </script>
