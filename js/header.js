@@ -31,6 +31,14 @@ function setupLoginForm() {
     e.preventDefault();
     router.navigate('/registration');
   });
+
+  const loginBtn = document.querySelector('.btn-primary');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      handleLogin();
+    });
+  }
 }
 
 function updateHeaderCounters() {

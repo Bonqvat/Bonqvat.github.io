@@ -48,15 +48,16 @@ document.addEventListener('DOMContentLoaded', function() {
   initAppState();
   initRouter();
   
-  const state = getAppState();
-  loadPage(state.currentPage || 'index');
+  const { page, queryParams } = parseHash(window.location.hash);
+  loadPage(page || 'index', queryParams);
   updateUI();
 });
 
 // Роутер
 const pageResources = {
   'index': {
-    styles: ['css/main.css']
+    styles: ['css/main.css'],
+    scripts: ['js/main.js']
   },
   'catalog': {
     styles: ['css/catalog.css'],
@@ -168,37 +169,71 @@ const pageInitializers = {
 let currentPageStyles = [];
 let currentPageScripts = [];
 
+function parseHash(hash) {
+  if (!hash || hash === '#') {
+    return { page: 'index', queryParams: {} };
+  }
+
+  const str = hash.startsWith('#') ? hash.substring(1) : hash;
+  const [path, queryString] = str.split('?');
+  const queryParams = {};
+
+  if (queryString) {
+    const params = new URLSearchParams(queryString);
+    params.forEach((value, key) => {
+      queryParams[key] = value;
+    });
+  }
+
+  return {
+    page: path || 'index',
+    queryParams
+  };
+}
+
+function formatQueryString(params) {
+  const keys = Object.keys(params);
+  if (keys.length === 0) return '';
+  return '?' + new URLSearchParams(params).toString();
+}
+
 function initRouter() {
   document.addEventListener('click', function(e) {
     const link = e.target.closest('a');
     if (link && link.getAttribute('href').startsWith('#')) {
       e.preventDefault();
-      const page = link.getAttribute('href').substring(1);
-      loadPage(page);
+      const hash = link.getAttribute('href');
+      const { page, queryParams } = parseHash(hash);
+      loadPage(page, queryParams);
     }
   });
-  
+
   window.addEventListener('popstate', function() {
-    const page = window.location.hash.substring(1) || 'index';
-    loadPage(page);
+    const { page, queryParams } = parseHash(window.location.hash);
+    loadPage(page, queryParams);
   });
 }
 
 // Загрузка страницы
-async function loadPage(page) { // Добавляем async
+async function loadPage(page, queryParams = {}) {
   const state = getAppState();
   state.currentPage = page;
+  state.searchParams = queryParams;
   saveAppState(state);
-  
-  window.history.pushState({}, '', `#${page}`);
-  
+
+  // Обновляем URL в браузере
+  const hash = `#${page}${formatQueryString(queryParams)}`;
+  if (window.location.hash !== hash) {
+    window.history.pushState({}, '', hash);
+  }
+
   showLoader();
   
   cleanupPageResources();
 
-  setTimeout(async () => { // Добавляем async здесь
+  setTimeout(async () => {
     try {
-      const content = await getPageContent(page); // Ожидаем загрузки контента
+      const content = await getPageContent(page);
       document.getElementById('main-content').innerHTML = content;
       if (pageResources[page]) {
         await loadPageResources(pageResources[page]);
@@ -488,50 +523,6 @@ function closeModal(modalId) {
   document.getElementById(modalId).style.display = 'none';
 }
 
-function handleLogin(e) {
-  e.preventDefault();
-  const email = e.target.querySelector('[name="email"]').value;
-  const password = e.target.querySelector('[name="password"]').value;
-  
-  const state = getAppState();
-  const adminUser = state.adminUsers.find(u => u.email === email && u.password === password);
-  
-  if (adminUser) {
-    state.user = { 
-      email,
-      name: 'Администратор',
-      isAdmin: true,
-      joinDate: new Date().toLocaleDateString()
-    };
-    saveAppState(state);
-    
-    showNotification('Вы вошли как администратор');
-    closeModal('loginModal');
-    updateUI();
-    return;
-  }
-  
-  // Проверяем обычных пользователей
-  const user = state.users.find(u => u.email === email && u.password === password);
-  
-  if (user) {
-    state.user = { 
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      joinDate: user.joinDate,
-      isAdmin: false
-    };
-    saveAppState(state);
-    
-    showNotification('Вы успешно вошли в систему');
-    closeModal('loginModal');
-    updateUI();
-  } else {
-    showNotification('Неверный email или пароль');
-  }
-}
-
 function handleRegister(e) {
   e.preventDefault();
   const email = e.target.querySelector('[name="email"]').value;
@@ -674,7 +665,6 @@ window.removeFromFavorites = removeFromFavorites;
 window.loadCarPage = loadCarPage;
 window.openLoginModal = openLoginModal;
 window.closeModal = closeModal;
-window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.logout = logout;
 window.performSearch = window.performSearch;
