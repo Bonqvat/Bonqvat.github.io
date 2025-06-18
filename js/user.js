@@ -45,13 +45,10 @@ function initUserPage() {
         modal.style.display = 'block';
     }
     
-    function closeModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-    
     function saveChanges() {
         showNotification('Изменения успешно сохранены');
-        closeModal();
+        // Прямая замена вызова closeModal
+        document.getElementById('editModal').style.display = 'none';
     }
 
     // Функции работы с заказами
@@ -66,13 +63,6 @@ function initUserPage() {
     function cancelOrder(orderId) {
         if (confirm('Вы уверены, что хотите отменить заказ #' + orderId + '?')) {
             showNotification('Заказ #' + orderId + ' отменен');
-        }
-    }
-
-    // Функции авторизации
-    function logout() {
-        if (confirm('Вы уверены, что хотите выйти?')) {
-            window.location.href = '#index';
         }
     }
     
@@ -109,18 +99,17 @@ function initUserPage() {
     // Обработчики событий
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
-            closeModal();
+            // Прямая замена вызова closeModal
+            document.getElementById('editModal').style.display = 'none';
         }
     };
 
     // Экспорт функций в глобальную область видимости
     window.openEditModal = openEditModal;
-    window.closeModal = closeModal;
     window.saveChanges = saveChanges;
     window.viewOrderDetails = viewOrderDetails;
     window.repeatOrder = repeatOrder;
     window.cancelOrder = cancelOrder;
-    window.logout = logout;
 }
 
 window.initUserPage = initUserPage;

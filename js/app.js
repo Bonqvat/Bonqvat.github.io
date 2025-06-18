@@ -1,6 +1,3 @@
-// app.js - полный код приложения
-import { carDetailsData, carBrands, modelsByBrand, recommendedCars, allCars } from '../data/cars-data.js';
-
 // Инициализация состояния приложения
 function initAppState() {
   if (!localStorage.getItem('futureAutoState')) {
@@ -554,6 +551,7 @@ function logout() {
   showNotification('Вы вышли из системы');
   updateUI();
   loadPage('index');
+  location.reload(); // Добавлена перезагрузка страницы
 }
 
 // Уведомления
@@ -583,40 +581,6 @@ function showLoader() {
 function hideLoader() {
   const loader = document.getElementById('page-loader');
   if (loader) loader.remove();
-}
-
-function filterCars(filters) {
-  return allCars.filter(car => {
-    if (filters.brand && car.brand !== filters.brand) return false;
-    if (filters.model && car.model !== filters.model) return false;
-    if (filters.minPrice && car.price < parseInt(filters.minPrice)) return false;
-    if (filters.maxPrice && car.price > parseInt(filters.maxPrice)) return false;
-    if (filters.type && filters.type !== 'all' && car.type !== filters.type) return false;
-    return true;
-  });
-}
-
-function updateCarGrid(cars) {
-  const carGrid = document.getElementById('carGrid');
-  if (carGrid) {
-    carGrid.innerHTML = cars.map(car => `
-      <div class="car-card">
-        <img src="${car.image}" alt="${car.brand} ${car.model}">
-        <div class="car-info">
-          <h3>${car.brand} ${car.model} ${car.year}</h3>
-          <p>${car.description}</p>
-          <p class="price">${car.price.toLocaleString()} ₽</p>
-          <div class="card-buttons">
-            <button onclick="addToCart(${car.id})">В корзину</button>
-            <button onclick="addToFavorites(${car.id})">
-              <i class="far fa-star"></i>
-            </button>
-            <button onclick="loadCarPage(${car.id})">Подробнее</button>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  }
 }
 
 function loadCarPage(carId) {
