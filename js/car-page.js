@@ -36,18 +36,49 @@ async function initCarPage() {
         localStorage.setItem('selectedProduct', JSON.stringify(selectedCar));
         window.location.hash = '#order';
       });
-      document.querySelector('.test-drive-btn')?.addEventListener('click', showTestDriveModal);
+      document.querySelector('.test-drive-btn')?.addEventListener('click', () => submitTicketTestDrive(car));
     } else {
       showError('Автомобиль не найден');
     }
   } else {
     showError('Не выбран автомобиль для просмотра');
   }
+}
 
-  document.getElementById('testDriveForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('Вы успешно записаны на тест-драйв! С вами свяжется менеджер для подтверждения.');
-    closeModal('testDriveModal');
+function submitTicketTestDrive(car) {
+  const state = JSON.parse(localStorage.getItem('futureAutoState'));
+  if (!state || !state.user) {
+    showNotification('Ошибка: пользователь не авторизован', 'error');
+    return;
+  }
+
+  const subject = 'Запись на тест-драйв';
+  const message = `${car.brand} ${car.model} ${car.description}`;
+  const user = state.user;
+  const ticketData = {
+    name: user.name || 'Не указано',
+    email: user.email || '',
+    phone: user.phone || '',
+    subject,
+    message,
+    type: 'test-drive'
+  };
+
+  fetch('ajax.php?action=addFeedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ticketData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      showNotification(data.error, 'error');
+    } else {
+      showNotification('Вы успешно записаны на тест-драйв! С вами свяжется менеджер для подтверждения.');
+    }
+  })
+  .catch(error => {
+    showNotification('Ошибка: ' + error.message, 'error');
   });
 }
 
@@ -60,6 +91,7 @@ async function loadCarsFromDB() {
       cars = data.map(car => ({
         ...car,
         features: car.features ? JSON.parse(car.features) : [],
+        specs: car.specs ? JSON.parse(car.specs) : [],
         images: car.images ? JSON.parse(car.images) : [],
         power: parseInt(car.power) || 0
       }));
