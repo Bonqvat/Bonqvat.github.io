@@ -15,7 +15,6 @@ function loadFooter() {
             <ul>
               <li><a href="#catalog">Автомобили</a></li>
               <li><a href="#catalog">Тип кузова</a></li>
-              <li><a href="#services">Запчасти</a></li>
               <li><a href="#support">Акции</a></li>
             </ul>
           </div>
@@ -116,25 +115,6 @@ window.subscribe = function() {
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
-}
-
-// Функция показа уведомлений
-function showNotification(message) {
-  const notification = document.createElement('div');
-  notification.className = 'notification';
-  notification.textContent = message;
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.classList.add('show');
-  }, 10);
-  
-  setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => {
-      document.body.removeChild(notification);
-    }, 300);
-  }, 3000);
 }
 
 // Загружаем футер при загрузке страницы

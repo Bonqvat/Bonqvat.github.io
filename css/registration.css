@@ -12,29 +12,6 @@ body {
     background-color: #f8f9fa;
 }
 
-header {
-    background: white;
-    padding: 20px 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e0e0e0;
-    height: 80px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.icons i {
-    font-size: 18px;
-    margin-left: 20px;
-    cursor: pointer;
-    color: #333;
-    transition: color 0.3s;
-}
-
-.icons i:hover {
-    color: #4c6ef5;
-}
-
 main {
     flex: 1;
     display: flex;

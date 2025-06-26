@@ -5,7 +5,13 @@
         <i class="fas fa-sliders-h"></i> Фильтры
       </button>
       <div class="search-bar-container">
-        <input type="text" class="search-bar" id="search" placeholder="Поиск по названию автомобиля" oninput="showSuggestions(this.value)">
+        <input 
+          type="text" 
+          class="search-bar" 
+          id="search" 
+          placeholder="Поиск по названию автомобиля" 
+          oninput="showSuggestions(this.value)"
+          onkeypress="if(event.keyCode==13) performSearch()">
         <div id="suggestions" class="autocomplete-suggestions"></div>
       </div>
       <button class="search-btn" onclick="performSearch()">
@@ -42,7 +48,7 @@
     
     <div class="filter-group">
       <h4>Тип кузова <span class="reset-filter" onclick="resetFilter('bodyTypeSelect')">Сбросить</span></h4>
-      <select id="bodyTypeSelect" onchange="filterByBodyType()">
+      <select id="bodyTypeSelect" onchange="filterCars()">
         <option value="" selected>Любой</option>
         <option value="sedan">Седан</option>
         <option value="hatchback">Хэтчбэк</option>
@@ -74,6 +80,15 @@
         <option value="750">500-750</option>
         <option value="1000">750-1000</option>
         <option value="1001">1000+</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <h4>Статус <span class="reset-filter" onclick="resetFilter('statusSelect')">Сбросить</span></h4>
+      <select id="statusSelect" onchange="filterCars()">
+        <option value="" selected>Любой</option>
+        <option value="Новый">Новый</option>
+        <option value="Б/У">Б/У</option>
       </select>
     </div>
     

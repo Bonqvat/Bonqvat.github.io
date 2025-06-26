@@ -11,49 +11,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
 }
-header {
-    background: white;
-    padding: 20px 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ccc;
-    height: 80px;
-}
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.icons i {
-    font-size: 18px;
-    margin-left: 20px;
-    cursor: pointer;
-    color: #333;
-    position: relative;
-    transition: transform 0.3s ease, color 0.3s;
-}
-.icons i:hover {
-    transform: scale(1.1);
-    color: #4c6ef5;
-}
-.icons i[data-count]::after {
-    content: attr(data-count);
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #4c6ef5;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.3s ease;
-}
 
 /* Контент страницы контактов */
 .contacts-container {
@@ -228,25 +185,6 @@ header {
 .contact-card:nth-child(3) { animation-delay: 0.3s; }
 .contact-card:nth-child(4) { animation-delay: 0.4s; }
 
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4c6ef5;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    transform: translateX(150%);
-    transition: transform 0.3s ease;
-    max-width: 300px;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
 /* Адаптация под мобильные устройства */
 @media (max-width: 900px) {
     .contacts-grid {
@@ -260,38 +198,5 @@ header {
     .form-row {
     grid-template-columns: 1fr;
     gap: 15px;
-    }
-}
-
-@media (max-width: 600px) {
-    header {
-    flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-    padding: 15px;
-    }
-    
-    nav {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    }
-    
-    nav a {
-    margin: 5px;
-    font-size: 16px;
-    }
-    
-    .contacts-container {
-    padding: 30px 20px;
-    }
-    
-    .contacts-header h1 {
-    font-size: 28px;
-    }
-    
-    .contacts-header p {
-    font-size: 16px;
     }
 }

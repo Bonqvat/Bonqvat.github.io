@@ -1,28 +1,55 @@
-import { cars } from '/data/data.js';
+let cars = [];
+let carData = [];
 
 const state = {
   cart: [],
   favorites: []
 };
 
-function initFavoritesPage() {
-  const savedState = localStorage.getItem('futureAutoState');
-  if (savedState) {
-    const stateObj = JSON.parse(savedState);
-    if (!stateObj.user) {
-      alert('Пожалуйста, войдите в систему');
-      loadPage('index');
-      return;
-    }
-    state.cart = stateObj.cart || [];
-    state.favorites = stateObj.favorites || [];
+async function initFavoritesPage() {
+  try {
+    // Загрузка данных с сервера
+    const favResponse = await fetch('script.php?action=getFavorites');
+    const favData = await favResponse.json();
+    
+    const cartResponse = await fetch('script.php?action=getCart');
+    const cartData = await cartResponse.json();
+    
+    state.favorites = favData.map(car => car.id);
+    state.cart = cartData.map(car => car.id);
+
+    await loadCarsFromDB();
+    
+    renderFavorites();
+    renderCart();
+    updateHeaderCounters();
+  } catch (error) {
+    console.error('Error loading data:', error);
   }
-  renderCart(); 
-  renderFavorites();
-  updateHeaderCounters();
 }
 
-// Восстановленная функция отображения корзины
+async function loadCarsFromDB() {
+  try {
+    const response = await fetch('script.php?action=getCars');
+    const data = await response.json();
+    
+    if (Array.isArray(data)) {
+      cars = data.map(car => ({
+        ...car,
+        features: car.features ? JSON.parse(car.features) : [],
+        images: car.images ? JSON.parse(car.images) : [],
+        power: parseInt(car.power) || 0
+      }));
+      
+      carData = cars.map(car => `${car.brand} ${car.model}`);
+    } else {
+      console.error('Invalid data format:', data);
+    }
+  } catch (error) {
+    console.error('Error loading cars:', error);
+  }
+}
+
 function renderCart() {
   const cartItemsContainer = document.getElementById('cart-items');
   const cartSummary = document.getElementById('cart-summary');
@@ -40,19 +67,32 @@ function renderCart() {
       
       const itemElement = document.createElement('div');
       itemElement.className = 'cart-item';
+      let imageUrl = 'images/no-image.jpg';
+      const colorKeys = Object.keys(car.images);
+      if (colorKeys.length > 0) {
+          imageUrl = car.images[colorKeys[0]]; 
+      }
       itemElement.innerHTML = `
-        <img src="${car.images.black}" alt="${car.brand} ${car.model}">
+        <img src="${imageUrl}" alt="${car.brand} ${car.model}">
         <div class="item-details">
           <h3>${car.brand} ${car.model}</h3>
           <p>${car.description}</p>
           <p class="price">${formatPrice(car.price)}</p>
         </div>
         <div class="item-actions">
+          <button class="btn btn-primary" onclick="checkoutOne(${car.id})">
+            <i class="fas fa-shopping-bag"></i> Заказать
+          </button>
           <button class="btn btn-outline" onclick="removeFromCart(${car.id})">
             <i class="fas fa-trash"></i> Удалить
           </button>
         </div>
       `;
+      const imgElement = itemElement.querySelector('img');
+      imgElement.onerror = function() {
+          this.src = 'images/no-image.jpg';
+          this.onerror = null;
+      };
       cartItemsContainer.appendChild(itemElement);
     });
     
@@ -62,28 +102,35 @@ function renderCart() {
       return sum + (car ? car.price : 0);
     }, 0);
     
-    document.getElementById('cart-subtotal').textContent = formatPrice(subtotal);
-    document.getElementById('cart-total').textContent = formatPrice(subtotal);
+    // Новый дизайн блока итогов
+    cartSummary.innerHTML = `
+      <div class="summary-card">
+        <div class="summary-header">
+          <h3>Ваша корзина</h3>
+          <span class="badge">${state.cart.length} товара</span>
+        </div>
+        
+        <div class="summary-row">
+          <span>Подытог:</span>
+          <span>${formatPrice(subtotal)}</span>
+        </div>
+        
+        <div class="summary-row total">
+          <span>Итого:</span>
+          <span class="total-price">${formatPrice(subtotal)}</span>
+        </div>
+        
+        <div class="summary-footer">
+          <p><i class="fas fa-info-circle"></i> Доставка рассчитывается на следующем шаге</p>
+        </div>
+      </div>
+    `;
+    
     cartSummary.style.display = 'block';
   }
   
   // Обновление счетчика в шапке
   document.getElementById('cart-count').textContent = state.cart.length;
-}
-
-// Функция удаления из корзины
-function removeFromCart(productId) {
-  state.cart = state.cart.filter(id => id !== productId);
-  saveState();
-  renderCart();
-  updateHeaderCounters();
-  
-  const car = cars.find(c => c.id == productId);
-  if (car) {
-    showNotification(`${car.brand} ${car.model} удален из корзины`);
-  } else {
-    showNotification(`Товар удален из корзины`);
-  }
 }
 
 function renderFavorites() {
@@ -100,8 +147,13 @@ function renderFavorites() {
       
       const itemElement = document.createElement('div');
       itemElement.className = 'fav-item';
+      let imageUrl = 'images/no-image.jpg';
+      const colorKeys = Object.keys(car.images);
+      if (colorKeys.length > 0) {
+          imageUrl = car.images[colorKeys[0]]; 
+      }
       itemElement.innerHTML = `
-        <img src="${car.images.black}" alt="${car.brand} ${car.model}">
+        <img src="${imageUrl}" alt="${car.brand} ${car.model}">
         <div class="item-details">
           <h3>${car.brand} ${car.model}</h3>
           <p>${car.description}</p>
@@ -116,29 +168,15 @@ function renderFavorites() {
           </button>
         </div>
       `;
+      const imgElement = itemElement.querySelector('img');
+      imgElement.onerror = function() {
+          this.src = 'images/no-image.jpg';
+          this.onerror = null;
+      };
       favoritesContainer.appendChild(itemElement);
     });
   }
   document.getElementById('favorites-count').textContent = state.favorites.length;
-}
-
-function updateHeaderCounters() {
-  const cartIcon = document.querySelector('.icons .fa-shopping-cart');
-  const favIcon = document.querySelector('.icons .fa-star');
-  
-  if (cartIcon) {
-    cartIcon.toggleAttribute('data-count', state.cart.length > 0);
-    if (state.cart.length > 0) {
-      cartIcon.setAttribute('data-count', state.cart.length);
-    }
-  }
-  
-  if (favIcon) {
-    favIcon.toggleAttribute('data-count', state.favorites.length > 0);
-    if (state.favorites.length > 0) {
-      favIcon.setAttribute('data-count', state.favorites.length);
-    }
-  }
 }
 
 function formatPrice(price) {
@@ -149,29 +187,93 @@ function formatPrice(price) {
   }).format(price);
 }
 
-function addToCart(productId) {
-  if (!state.cart.includes(productId)) {
-    state.cart.push(productId);
-    saveState();
+async function addToCart(productId) {
+  try {
+    const response = await fetch('script.php?action=addToCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ carId: productId })
+    });
     
-    const car = cars.find(c => c.id == productId);
-    if (car) {
-      showNotification(`${car.brand} ${car.model} добавлен в корзину`);
-    } else {
+    const result = await response.json();
+    if (result.success) {
+      // Обновляем локальное состояние
+      if (!state.cart.includes(productId)) {
+        state.cart.push(productId);
+        // Сохраняем в localStorage
+        const stateObj = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+        stateObj.cart = state.cart;
+        localStorage.setItem('futureAutoState', JSON.stringify(stateObj));
+      }
+      
+      // Обновляем UI
       showNotification(`Товар добавлен в корзину`);
+      updateHeaderCounters();
+      renderCart();
     }
-    
-    updateHeaderCounters();
-    renderCart(); // Обновляем отображение корзины
+  } catch (error) {
+    console.error('Error:', error);
   }
 }
 
-function removeFromFavorites(productId) {
-  state.favorites = state.favorites.filter(id => id !== productId);
-  saveState();
-  renderFavorites();
-  updateHeaderCounters();
-  showNotification(`Товар удален из избранного`);
+async function removeFromCart(productId) {
+  try {
+    const response = await fetch('script.php?action=removeFromCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ carId: productId })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      // Обновляем локальное состояние
+      state.cart = state.cart.filter(id => id !== productId);
+      // Сохраняем в localStorage
+      const stateObj = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+      stateObj.cart = state.cart;
+      localStorage.setItem('futureAutoState', JSON.stringify(stateObj));
+      
+      // Обновляем UI
+      renderCart();
+      updateHeaderCounters();
+      showNotification(`Товар удален из корзины`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function removeFromFavorites(productId) {
+  try {
+    const response = await fetch('script.php?action=removeFromFavorites', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ carId: productId })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      // Обновляем локальное состояние
+      state.favorites = state.favorites.filter(id => id !== productId);
+      // Сохраняем в localStorage
+      const stateObj = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+      stateObj.favorites = state.favorites;
+      localStorage.setItem('futureAutoState', JSON.stringify(stateObj));
+      
+      // Обновляем UI
+      renderFavorites();
+      updateHeaderCounters();
+      showNotification(`Товар удален из избранного`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
 }
 
 function saveState() {
@@ -181,15 +283,39 @@ function saveState() {
   localStorage.setItem('futureAutoState', JSON.stringify(appState));
 }
 
-function showNotification(message) {
-  const notification = document.getElementById('notification');
-  if (!notification) return;
-  notification.textContent = message;
-  notification.classList.add('show');
-  setTimeout(() => notification.classList.remove('show'), 3000);
+// Функция для оформления одного товара
+async function checkoutOne(productId) {
+  try {
+    // Сохраняем выбранный автомобиль
+    const car = cars.find(c => c.id == productId);
+    if (car) {
+      localStorage.setItem('selectedProduct', JSON.stringify({
+        brand: car.brand,
+        model: car.model,
+        price: car.price,
+        id: car.id
+      }));
+    }
+    
+    // Очищаем корзину
+    const currentCart = [...state.cart];
+    for (const id of currentCart) {
+      await removeFromCart(id);
+    }
+    
+    // Добавляем выбранный товар обратно
+    await addToCart(productId);
+    
+    // Переходим на страницу оформления заказа
+    window.location.hash = '#order';
+  } catch (error) {
+    console.error('Error during single product checkout:', error);
+    showNotification('Ошибка при оформлении заказа');
+  }
 }
 
 window.initFavoritesPage = initFavoritesPage;
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.removeFromFavorites = removeFromFavorites;
+window.checkoutOne = checkoutOne;

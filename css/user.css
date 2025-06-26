@@ -4,30 +4,12 @@
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
 }
-
 body {
     background-color: #f4f4f4;
     color: #111;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-}
-
-.icons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.icons i {
-    font-size: 18px;
-    cursor: pointer;
-    color: #333;
-    transition: color 0.3s;
-}
-
-.icons i:hover {
-    color: #4c6ef5;
 }
 
 /* Основное содержимое */
@@ -52,12 +34,10 @@ main {
 }
 
 .user-avatar {
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    margin: 0 auto 20px;
-    display: block;
     border: 3px solid #4c6ef5;
 }
 
@@ -262,43 +242,17 @@ main {
 .action-btn:hover {
     background: #f0f0f0;
 }      
-    .user-container {
-    flex-direction: column;
-    }
-    
-    .user-sidebar {
-    width: 100%;
-    }
-    
-    .user-info-grid {
-    grid-template-columns: 1fr;
-    }
 
-@media (max-width: 768px) {
-    header {
-    padding: 15px 20px;
-    flex-wrap: wrap;
-    height: auto;
-    }
-    
-    nav {
-    order: 3;
-    width: 100%;
-    margin-top: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    }
-    
-    nav a {
-    margin: 0;
-    padding: 8px 12px;
-    font-size: 16px;
-    }
-    
-    main {
-    padding: 20px;
-    }
+.user-container {
+flex-direction: column;
+}
+
+.user-sidebar {
+width: 100%;
+}
+
+.user-info-grid {
+grid-template-columns: 1fr;
 }
 
 /* Модальные окна */
@@ -399,16 +353,352 @@ main {
     margin-top: 20px;
 }
 
-/* Уведомления */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+/* Стили для истории обращений */
+.ticket-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.3s;
+}
+
+.ticket-card:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ticket-id {
+    font-weight: 600;
+    color: #4c6ef5;
+}
+
+.ticket-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.ticket-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.ticket-open {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.ticket-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ticket-closed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ticket-subject {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.ticket-message {
+    color: #555;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.ticket-answer {
+    background: #f8f9fa;
+    border-left: 3px solid #4c6ef5;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 0 4px 4px 0;
+}
+
+.ticket-answer strong {
+    color: #4c6ef5;
+}
+
+.create-ticket-btn {
     background: #4c6ef5;
     color: white;
-    padding: 15px 20px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: background 0.3s;
+}
+
+.create-ticket-btn:hover {
+    background: #3a5cd8;
+}
+
+/* Стили для деталей заказа */
+.order-details-modal {
+    padding: 20px;
+}
+
+.details-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.detail-item {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 6px;
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+.car-details {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.car-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.car-image {
+    width: 150px;
+    height: auto;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.spec-item {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.details-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.details-section h4 {
+    margin-bottom: 15px;
+    color: #4c6ef5;
+}
+
+.details-section ul {
+    padding-left: 20px;
+}
+
+.details-section li {
+    margin-bottom: 8px;
+}
+
+/* Сообщения о пустых списках */
+.empty-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-size: 16px;
+    background: #f8f9fa;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    z-index: 1100;
-    display: none;
+    margin-top: 20px;
+}
+
+/* Адаптивные правки */
+@media (max-width: 768px) {
+    .user-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .car-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .details-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .specs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Обновленные стили для карточек заказов */
+.order-card {
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.order-id {
+    font-weight: 700;
+    font-size: 16px;
+    color: #343a40;
+}
+
+.order-date {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.order-status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.order-details {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.order-car {
+    width: 100px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.order-info {
+    flex-grow: 1;
+}
+
+.order-model {
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 5px;
+    color: #212529;
+}
+
+.order-specs {
+    color: #495057;
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.order-price {
+    color: #4c6ef5;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.order-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    background: #fff;
+    border: 1px solid #4c6ef5;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4c6ef5;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.action-btn:hover {
+    background: #4c6ef5;
+    color: white;
+}
+
+/* Новые стили для загрузки аватарки */
+.avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+}
+
+.avatar-upload-label {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #4c6ef5;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.avatar-upload-label:hover {
+    background: #3d5dbf;
+    transform: scale(1.1);
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #e9ecef;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

@@ -11,27 +11,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
 }
-.icons i:hover {
-    transform: scale(1.1);
-    color: #4c6ef5;
-}
-.icons i[data-count]::after {
-    content: attr(data-count);
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #4c6ef5;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.3s ease;
-}
 
 /* Основной контент */
 .terms-container {
@@ -159,25 +138,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4c6ef5;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    transform: translateX(150%);
-    transition: transform 0.3s ease;
-    max-width: 300px;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
 /* Адаптация под мобильные устройства */
 @media (max-width: 900px) {
     .terms-container {
@@ -195,50 +155,5 @@ body {
     
     .tab {
     border-bottom: 1px solid #ddd;
-    }
-}
-
-@media (max-width: 600px) {
-    header {
-    flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-    padding: 15px;
-    }
-    
-    nav {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    }
-    
-    nav a {
-    margin: 5px;
-    font-size: 16px;
-    }
-    
-    .terms-container {
-    padding: 20px 15px;
-    }
-    
-    .terms-header h1 {
-    font-size: 28px;
-    }
-    
-    .terms-header p {
-    font-size: 16px;
-    }
-    
-    .terms-content {
-    padding: 20px;
-    }
-    
-    .terms-content h2 {
-    font-size: 24px;
-    }
-    
-    .terms-content h3 {
-    font-size: 20px;
     }
 }

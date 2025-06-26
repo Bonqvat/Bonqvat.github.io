@@ -171,3 +171,13 @@
     form button:hover {
       background-color: #3b5bdb;
     }
+    .car-status {
+      display: inline-block;
+      padding: 4px 8px;
+      background-color: #4c6ef5;
+      color: white;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }

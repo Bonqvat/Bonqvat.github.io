@@ -1,9 +1,35 @@
-import { cars, recommendedCarIds, brands, modelsByBrand } from '/data/data.js';
+import { recommendedCarIds, brands, modelsByBrand } from '/data/data.js';
+let cars = [];
+let carData = [];
 
-function initIndexPage() {
+async function initIndexPage() {
+  await loadCarsFromDB();
   populateBrandList();
   loadRecommendedCars();
   setupEventListeners();
+  updateHeaderCounters();
+}
+
+async function loadCarsFromDB() {
+  try {
+    const response = await fetch('script.php?action=getCars');
+    const data = await response.json();
+    
+    if (Array.isArray(data)) {
+      cars = data.map(car => ({
+        ...car,
+        features: car.features ? JSON.parse(car.features) : [],
+        images: car.images ? JSON.parse(car.images) : [],
+        power: parseInt(car.power) || 0
+      }));
+      
+      carData = cars.map(car => `${car.brand} ${car.model}`);
+    } else {
+      console.error('Invalid data format:', data);
+    }
+  } catch (error) {
+    console.error('Error loading cars:', error);
+  }
 }
 
 function populateBrandList() {
@@ -22,18 +48,38 @@ function loadRecommendedCars() {
   const container = document.getElementById('recommendedCars');
   container.innerHTML = '';
   
+  const selectedFilter = document.querySelector('.filter-option.selected')?.dataset.filter || 'all';
+  
   recommendedCarIds.forEach(carId => {
     const car = cars.find(c => c.id === carId);
     if (!car) return;
     
+    if (selectedFilter === 'new' && car.status !== 'Новый') return;
+    if (selectedFilter === 'used' && car.status !== 'Б/У') return;
+    
     const carElement = document.createElement('div');
     carElement.className = 'recommended-car';
+    let imageUrl = 'images/no-image.jpg';
+    const colorKeys = Object.keys(car.images);
+    if (colorKeys.length > 0) {
+        imageUrl = car.images[colorKeys[0]]; 
+    }
+    
     carElement.innerHTML = `
-      <img src="${car.images.black}" alt="${car.brand} ${car.model}">
-      <h3>${car.brand} ${car.model}</h3>
+      <a href="#car-page" class="car-link" data-id="${car.id}">
+        <img src="${imageUrl}" alt="${car.brand} ${car.model}">
+        <h3>${car.brand} ${car.model}</h3>
+      </a>
       <p>${car.price.toLocaleString('ru-RU')} ₽</p>
       <button class="btn add-to-cart" data-id="${car.id}">В корзину</button>
     `;
+    
+    const imgElement = carElement.querySelector('img');
+    imgElement.onerror = function() {
+        this.src = 'images/no-image.jpg';
+        this.onerror = null;
+    };
+    
     container.appendChild(carElement);
   });
 }
@@ -42,6 +88,7 @@ function setupEventListeners() {
   document.querySelectorAll('.filter-option').forEach(option => {
     option.addEventListener('click', function() {
       setFilter(this);
+      loadRecommendedCars();
     });
   });
   
@@ -54,17 +101,19 @@ function setupEventListeners() {
   });
   
   document.addEventListener('click', function(e) {
+    if (e.target.closest('.car-link')) {
+      const carId = parseInt(e.target.closest('.car-link').dataset.id);
+      const state = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+      state.currentCarId = carId;
+      localStorage.setItem('futureAutoState', JSON.stringify(state));
+      window.location.href = `#car-page?id=${carId}`;
+    }
+    
     if (e.target.classList.contains('add-to-cart')) {
-      addToCart(parseInt(e.target.dataset.id));
+      const carId = parseInt(e.target.dataset.id);
+      addToCart(carId);
     }
   });
-}
-
-function addToCart(carId) {
-  const car = cars.find(c => c.id === carId);
-  if (car) {
-    alert(`Автомобиль ${car.brand} ${car.model} добавлен в корзину!`);
-  }
 }
 
 function performSearch() {
@@ -82,7 +131,7 @@ function performSearch() {
 }
 
 function navigateToCatalog(type) {
-  window.location.href = `catalog.html?bodyType=${type}`;
+  window.location.href = `#catalog?bodyType=${type}`;
 }
 
 function setFilter(selected) {
@@ -113,6 +162,7 @@ function updateModels(brand) {
 
 document.addEventListener('DOMContentLoaded', function() {
   loadRecommendedCars();
+  updateHeaderCounters();
 });
 
 window.initIndexPage = initIndexPage;

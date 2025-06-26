@@ -488,10 +488,59 @@ const cars = [
         { name: "Количество дверей", value: "5" }
       ]
     }
+  },
+  {
+    id: 11,
+    brand: 'Lada',
+    model: 'Vesta',
+    year: 2024,
+    bodyType: 'sedan',
+    drive: 'front',
+    power: 106,
+    price: 1250000,
+    description: '1.6 (106 л.с.), механика, передний привод',
+    features: ['Кондиционер', 'Электростеклоподъемники'],
+    status: 'Новый',
+    type: 'sedan',
+    images: {
+      black: 'https://static.lada.ru/images/v6/cars/vesta/sedan/gallery/vesta-sedan-21.jpg',
+      white: 'https://static.lada.ru/images/v6/cars/vesta/sedan/gallery/vesta-sedan-12.jpg',
+      brown: 'https://static.lada.ru/images/v6/cars/vesta/sedan/gallery/vesta-sedan-14.jpg'
+    },
+    specs: {
+      main: [
+        { name: "Мощность двигателя", value: "106 ЛС" },
+        { name: "Объем двигателя", value: "1.6 л" },
+        { name: "Разгон 0-100 км/ч", value: "12.5 с" },
+        { name: "Расход топлива", value: "7.5 л / 100 км" },
+        { name: "Привод", value: "Передний" }
+      ],
+      engine: [
+        { name: "Рабочий объем", value: "1596 см³" },
+        { name: "Тип двигателя", value: "Бензиновый" },
+        { name: "Конфигурация", value: "Рядный" },
+        { name: "Обороты макс.", value: "5800 об/мин" },
+        { name: "Крутящий момент", value: "148 Нм" }
+      ],
+      dimensions: [
+        { name: "Длина", value: "4410 мм" },
+        { name: "Ширина", value: "1764 мм" },
+        { name: "Высота", value: "1497 мм" },
+        { name: "Колесная база", value: "2635 мм" },
+        { name: "Объем багажника", value: "480 л" }
+      ],
+      general: [
+        { name: "Страна", value: "Россия" },
+        { name: "Год", value: "2024" },
+        { name: "Кузов", value: "Седан" },
+        { name: "Комплектация", value: "Comfort" },
+        { name: "Количество дверей", value: "4" }
+      ]
+    }
   }
 ];
 
-const recommendedCarIds = [1, 2, 3, 4];
+const recommendedCarIds = [1, 2, 3, 4,];
 
 const brands = [
   "BMW", "Audi", "Mercedes", "Toyota", "Honda", "Ford", "Chevrolet", "Volkswagen",

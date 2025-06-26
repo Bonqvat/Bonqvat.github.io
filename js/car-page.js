@@ -1,39 +1,48 @@
-import { cars } from '/data/data.js';
+let cars = [];
+let carData = [];
 
-function initCarPage() {
-  // Инициализация состояния приложения
+async function initCarPage() {
   if (!JSON.parse(localStorage.getItem('futureAutoState'))) {
     localStorage.setItem('futureAutoState', JSON.stringify({
       user: null,
       cart: [],
-      favorites: [],
-      currentCarId: null
+      currentCarId: [],
+      currentCar: null
     }));
   }
+
+  await loadCarsFromDB();
 
   const state = JSON.parse(localStorage.getItem('futureAutoState'));
   const carId = state?.currentCarId;
   
   if (carId) {
-    // Поиск автомобиля в локальных данных
     const car = cars.find(c => c.id === carId);
     if (car) {
       renderCar(car);
-      // Сохраняем текущий автомобиль для быстрого доступа
       window.currentCar = car;
+
+      document.querySelector('.cart-btn')?.addEventListener('click', () => addToCart(carId));
+      document.querySelector('.favorite-btn')?.addEventListener('click', () => addToFavorites(carId));
+      document.querySelector('.order-btn')?.addEventListener('click', () => {
+        const selectedCar = {
+          id: car.id,
+          brand: car.brand,
+          model: car.model,
+          price: car.price,
+          image: car.images[Object.keys(car.images)[0]] || 'images/no-image.jpg'
+        };
+        
+        localStorage.setItem('selectedProduct', JSON.stringify(selectedCar));
+        window.location.hash = '#order';
+      });
+      document.querySelector('.test-drive-btn')?.addEventListener('click', showTestDriveModal);
     } else {
       showError('Автомобиль не найден');
     }
   } else {
     showError('Не выбран автомобиль для просмотра');
   }
-
-  // Обработчики форм
-  document.getElementById('orderForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('Ваш заказ успешно оформлен! С вами свяжется менеджер для подтверждения.');
-    closeModal('orderModal');
-  });
 
   document.getElementById('testDriveForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -42,116 +51,85 @@ function initCarPage() {
   });
 }
 
+async function loadCarsFromDB() {
+  try {
+    const response = await fetch('script.php?action=getCars');
+    const data = await response.json();
+    
+    if (Array.isArray(data)) {
+      cars = data.map(car => ({
+        ...car,
+        features: car.features ? JSON.parse(car.features) : [],
+        images: car.images ? JSON.parse(car.images) : [],
+        power: parseInt(car.power) || 0
+      }));
+      
+      carData = cars.map(car => `${car.brand} ${car.model}`);
+    } else {
+      console.error('Invalid data format:', data);
+    }
+  } catch (error) {
+    console.error('Error loading cars:', error);
+  }
+}
+
 function showError(message) {
   const container = document.querySelector('.container');
   container.innerHTML = `<div class="error">${message}</div>`;
 }
 
-// Функция отображения данных автомобиля
 function renderCar(car) {
-  // Обновляем данные на странице
   document.getElementById('car-title').textContent = `${car.brand} ${car.model}`;
   document.getElementById('car-price').textContent = `${car.price.toLocaleString('ru-RU')}₽`;
   document.getElementById('car-description').textContent = car.description;
   
-  // Устанавливаем изображение автомобиля (с заглушкой при ошибке)
   const img = document.getElementById('mainImage');
-  img.src = car.images.black;
+  img.src = car.images[Object.keys(car.images)[0]];
   img.alt = `${car.brand} ${car.model}`;
   img.onerror = function() {
-    this.src = 'images/car-placeholder.png';
+    this.src = 'images/no-image.jpg';
     this.classList.add('placeholder-image');
   };
   
-  // Обновляем характеристики из объекта specs
-  document.getElementById('specs-main').innerHTML = `
-    <tr><td>Мощность двигателя</td><td>${car.specs.power} л.с.</td></tr>
-    <tr><td>Объем двигателя</td><td>${car.specs.engineVolume}</td></tr>
-    <tr><td>Разгон 0-100 км/ч</td><td>${car.specs.acceleration}</td></tr>
-    <tr><td>Расход топлива</td><td>${car.specs.fuelConsumption}</td></tr>
-    <tr><td>Привод</td><td>${car.specs.driveType}</td></tr>
-  `;
+  const colorsContainer = document.getElementById('colors-container');
+  colorsContainer.innerHTML = '';
   
-  document.getElementById('specs-engine').innerHTML = `
-    <tr><td>Рабочий объем</td><td>${car.specs.engineVolume}</td></tr>
-    <tr><td>Тип двигателя</td><td>${car.specs.engineType}</td></tr>
-    <tr><td>Конфигурация</td><td>${car.specs.engineConfig}</td></tr>
-    <tr><td>Обороты макс.</td><td>${car.specs.maxRPM}</td></tr>
-    <tr><td>Крутящий момент</td><td>${car.specs.torque}</td></tr>
-  `;
-  
-  document.getElementById('specs-general').innerHTML = `
-    <tr><td>Страна</td><td>${car.specs.country}</td></tr>
-    <tr><td>Год</td><td>${car.year}</td></tr>
-    <tr><td>Кузов</td><td>${car.specs.bodyType}</td></tr>
-    <tr><td>Комплектация</td><td>${car.specs.trim}</td></tr>
-    <tr><td>Количество дверей</td><td>${car.specs.doors}</td></tr>
-  `;
+  Object.entries(car.images).forEach(([colorName, imageUrl], index) => {
+    const colorDiv = document.createElement('div');
+    colorDiv.className = `color ${index === 0 ? 'active' : ''}`;
+    colorDiv.style.background = colorName;
+    colorDiv.onclick = (e) => {
+      changeColor(imageUrl, e);
+    };
+    colorsContainer.appendChild(colorDiv);
+  });
+
+  function generateTableRows(items, isMain = false) {
+    return items.map(item => 
+      `<tr><td>${item.name || item.value}</td><td>${isMain && items.indexOf(item) === 0 ? item.value + ' л.с.' : item.value}</td></tr>`
+    ).join('');
+  }
+
+  document.getElementById('specs-main').innerHTML = generateTableRows(car.specs.main, true);
+  document.getElementById('specs-engine').innerHTML = generateTableRows(car.specs.engine);
+  document.getElementById('specs-general').innerHTML = generateTableRows(car.specs.general);
+
+  const titleContainer = document.getElementById('car-title').parentNode;
+  const statusElement = document.createElement('div');
+  statusElement.className = 'car-status';
+  statusElement.textContent = car.status;
+  titleContainer.insertBefore(
+    statusElement, 
+    document.getElementById('car-price')
+  );
 }
 
-// Функция смены цвета автомобиля
-function changeColor(color, imageUrl) {
+function changeColor(imageUrl, event) {
   document.getElementById('mainImage').src = imageUrl;
   
-  // Обновление активного цвета
   const colors = document.querySelectorAll('.color');
   colors.forEach(c => c.classList.remove('active'));
   event.target.classList.add('active');
-}
-
-// Функция добавления в корзину
-function addToCart() {
-  if (!window.currentCar) {
-    alert('Ошибка: данные автомобиля не загружены');
-    return;
-  }
-  
-  const car = window.currentCar;
-  const state = JSON.parse(localStorage.getItem('futureAutoState'));
-  
-  // Обновление состояния корзины
-  const existingItem = state.cart.find(item => item.id === car.id);
-  
-  if (existingItem) {
-    existingItem.quantity += 1;
-  } else {
-    state.cart.push({
-      id: car.id,
-      brand: car.brand,
-      model: car.model,
-      price: car.price,
-      quantity: 1
-    });
-  }
-  
-  localStorage.setItem('futureAutoState', JSON.stringify(state));
-  updateHeaderCounters();
-  alert(`Автомобиль ${car.brand} ${car.model} добавлен в корзину!`);
-}
-
-// Функция добавления в избранное
-function addToFavorites() {
-  if (!window.currentCar) {
-    alert('Ошибка: данные автомобиля не загружены');
-    return;
-  }
-
-  const car = window.currentCar;
-  const state = JSON.parse(localStorage.getItem('futureAutoState'));
-  
-  // Обновляем состояние
-  if (!state.favorites.includes(car.id)) {
-    state.favorites.push(car.id);
-    localStorage.setItem('futureAutoState', JSON.stringify(state));
-    updateHeaderCounters();
-    alert(`Автомобиль ${car.brand} ${car.model} добавлен в избранное!`);
-  } else {
-    alert('Этот автомобиль уже в избранном');
-  }
-}
-
-function showOrderModal() {
-  document.getElementById('orderModal').style.display = 'block';
 }
 
 function showTestDriveModal() {
@@ -169,3 +147,4 @@ window.onclick = function(event) {
 };
 
 window.initCarPage = initCarPage;
+window.changeColor = changeColor;

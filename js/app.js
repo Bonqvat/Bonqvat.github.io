@@ -97,7 +97,8 @@ const pageResources = {
     scripts: ['js/support.js']
   },
   'termsprivacy': {
-    styles: ['css/termsprivacy.css']
+    styles: ['css/termsprivacy.css'],
+    scripts: ['js/termsprivacy.js']
   },
   'user': {
     styles: ['css/user.css'],
@@ -419,96 +420,56 @@ function updateNavigation() {
   });
 }
 
-// Обновление счетчиков в хедере
-function updateHeaderCounters() {
-  const state = getAppState();
-  
-  const cartIcon = document.querySelector('.fa-shopping-cart');
-  const favIcon = document.querySelector('.fa-star');
-  
-  if (cartIcon) {
-    if (state.cart.length > 0) {
-      cartIcon.setAttribute('data-count', state.cart.length);
-    } else {
-      cartIcon.removeAttribute('data-count');
-    }
-  }
-  
-  if (favIcon) {
-    if (state.favorites.length > 0) {
-      favIcon.setAttribute('data-count', state.favorites.length);
-    } else {
-      favIcon.removeAttribute('data-count');
-    }
-  }
-}
-
-// Обновление UI авторизации
-function updateAuthUI() {
-  const state = getAppState();
-  const authButton = document.querySelector('.auth-btn');
-  
-  if (authButton) {
-    if (state.user) {
-      authButton.innerHTML = `<i class="fas fa-user"></i> ${state.user.name}`;
-      authButton.onclick = () => loadPage('profile');
+// Добавление в избранное
+async function addToFavorites(carId) {
+  try {
+    const response = await fetch('script.php?action=addToFavorites', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ carId })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      // Обновление UI
+      const favIcon = document.getElementById('favorites-icon');
+      favIcon.classList.add('bounce-animation');
+      setTimeout(() => favIcon.classList.remove('bounce-animation'), 500);
       
-      // Добавляем кнопку админ-панели для администраторов
-      if (state.user.isAdmin) {
-        let adminBtn = document.querySelector('.admin-btn');
-        if (!adminBtn) {
-          adminBtn = document.createElement('a');
-          adminBtn.className = 'admin-btn';
-          adminBtn.href = '#admin';
-          adminBtn.innerHTML = '<i class="fas fa-cog"></i> Админ';
-          authButton.parentNode.insertBefore(adminBtn, authButton.nextSibling);
-        }
-      }
-    } else {
-      authButton.innerHTML = '<i class="fas fa-user"></i> Войти';
-      authButton.onclick = openLoginModal;
-      // Удаляем кнопку админ-панели, если пользователь не авторизован
-      const adminBtn = document.querySelector('.admin-btn');
-      if (adminBtn) adminBtn.remove();
+      updateHeaderCounters();
+      showNotification(`Автомобиль добавлен в избранное!`);
     }
+  } catch (error) {
+    console.error('Error:', error);
   }
 }
 
-// Функции для работы с корзиной и избранным
-function addToCart(productId) {
-  const state = getAppState();
-  if (!state.cart.includes(productId)) {
-    state.cart.push(productId);
-    saveAppState(state);
-    showNotification('Товар добавлен в корзину');
-    updateUI();
+// Добавление в корзину
+async function addToCart(carId) {
+  try {
+    const response = await fetch('script.php?action=addToCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ carId })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      // Обновление UI
+      const cartIcon = document.getElementById('cart-icon');
+      cartIcon.classList.add('bounce-animation');
+      setTimeout(() => cartIcon.classList.remove('bounce-animation'), 500);
+      
+      updateHeaderCounters();
+      showNotification(`Автомобиль добавлен в корзину!`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
   }
-}
-
-function removeFromCart(productId) {
-  const state = getAppState();
-  state.cart = state.cart.filter(id => id !== productId);
-  saveAppState(state);
-  showNotification('Товар удален из корзины');
-  updateUI();
-}
-
-function addToFavorites(productId) {
-  const state = getAppState();
-  if (!state.favorites.includes(productId)) {
-    state.favorites.push(productId);
-    saveAppState(state);
-    showNotification('Товар добавлен в избранное');
-    updateUI();
-  }
-}
-
-function removeFromFavorites(productId) {
-  const state = getAppState();
-  state.favorites = state.favorites.filter(id => id !== productId);
-  saveAppState(state);
-  showNotification('Товар удален из избранного');
-  updateUI();
 }
 
 // Модальные окна
@@ -518,40 +479,6 @@ function openLoginModal() {
 
 function closeModal(modalId) {
   document.getElementById(modalId).style.display = 'none';
-}
-
-function handleRegister(e) {
-  e.preventDefault();
-  const email = e.target.querySelector('[name="email"]').value;
-  const password = e.target.querySelector('[name="password"]').value;
-  const name = e.target.querySelector('[name="name"]').value;
-  
-  if (email && password && name) {
-    const state = getAppState();
-    state.user = { 
-      email,
-      name,
-      joinDate: new Date().toLocaleDateString()
-    };
-    saveAppState(state);
-    
-    showNotification('Регистрация прошла успешно!');
-    closeModal('registerModal');
-    updateUI();
-  } else {
-    showNotification('Пожалуйста, заполните все поля');
-  }
-}
-
-function logout() {
-  const state = getAppState();
-  state.user = null;
-  saveAppState(state);
-  
-  showNotification('Вы вышли из системы');
-  updateUI();
-  loadPage('index');
-  location.reload(); // Добавлена перезагрузка страницы
 }
 
 // Уведомления
@@ -622,16 +549,13 @@ window.performSearch = function() {
 };
 
 // Экспорт функций в глобальную область видимости
+window.getAppState = getAppState;
 window.addToCart = addToCart;
-window.removeFromCart = removeFromCart;
 window.addToFavorites = addToFavorites;
-window.removeFromFavorites = removeFromFavorites;
+window.showNotification = showNotification;
 window.loadCarPage = loadCarPage;
 window.openLoginModal = openLoginModal;
 window.closeModal = closeModal;
-window.handleRegister = handleRegister;
-window.logout = logout;
 window.performSearch = window.performSearch;
 window.changeMainImage = changeMainImage;
-window.updateHeaderCounters = updateHeaderCounters;
 window.loadPage = loadPage;

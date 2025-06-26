@@ -1,72 +1,357 @@
-    <div class="container">
-        <img id="carPreview" class="car-preview" alt="Превью автомобиля">
-        
-        <h2>Марка автомобиля</h2>
-        <select id="brand" required onchange="updateModels()">
-            <option value="">Выберите марку автомобиля</option>
-        </select>
-        
-        <h2>Модель автомобиля</h2>
-        <select id="model" required onchange="updateCarDetails()">
-            <option value="">Выберите модель автомобиля</option>
-        </select>
-        
-        <h2>Выберите ближайший от вас автосалон</h2>
-        <select id="dealer" required onchange="updateMap()">
-            <option value="">Выберите ближайший от вас автосалон</option>
-            <option value="54.348333,48.586111">Автосалон 1 (Центральный)</option>
-            <option value="54.375833,48.584444">Автосалон 2 (Северный)</option>
-            <option value="54.354444,48.366944">Автосалон 3 (Западный)</option>
-            <option value="54.340833,48.399722">Автосалон 4 (Южный)</option>
-            <option value="54.330556,48.366111">Автосалон 5 (Восточный)</option>
-        </select>
-        <div id="map" class="map-container"></div>
-        
-        <h2>Выберите способ оплаты</h2>
-        <select id="payment" required>
-            <option value="">Выберите способ оплаты</option>
-            <option value="card">Банковская карта</option>
-            <option value="cash">Наличные</option>
-            <option value="credit">Кредит</option>
-            <option value="installment">Рассрочка</option>
-        </select>
-        
-        <h2>Дополнительные услуги</h2>
-        <select id="services" size="4" multiple onchange="updateServices(this)">
-            <option value="Страхование">Страхование (50 000 руб.)</option>
-            <option value="Доп. ТО">Доп. ТО (30 000 руб.)</option>
-            <option value="Замена шин">Замена шин (15 000 руб.)</option>
-            <option value="Премиум страховка">Премиум страховка (80 000 руб.)</option>
-        </select>
-        
-        <h2>Опции</h2>
-        <select id="options" size="4" multiple onchange="updateOptions(this)">
-            <option value="Кожаный салон">Кожаный салон (60 000 руб.)</option>
-            <option value="Навигация">Навигация (25 000 руб.)</option>
-            <option value="Премиум аудиосистема">Премиум аудиосистема (40 000 руб.)</option>
-            <option value="Панорамная крыша">Панорамная крыша (70 000 руб.)</option>
-        </select>
-        
-        <h2>Подтвердите контактный номер телефона</h2>
-        <input type="tel" id="phone" placeholder="Введите номер телефона например +79212312321" required>
-        
-        <div class="summary" id="summary">
-            <p>Авто: <span id="carPrice">-</span> рублей</p>
-            <p>Услуги: <span id="servicePrice">0</span> рублей</p>
-            <p>Опции: <span id="insurancePrice">0</span> рублей</p>
-            <p><strong>Итого: <span id="totalPrice">0</span> рублей</strong></p>
-        </div>
-        
-        <button id="submit" onclick="showOrderConfirmation()">Оформить заказ</button>
+<div class="order-container">
+    <div class="order-header">
+        <h1><i class="fas fa-car"></i> Оформление заказа</h1>
     </div>
 
-    <div id="orderModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeOrderModal()">&times;</span>
-            <h2>Ваш заказ успешно оформлен!</h2>
-            <p>Сумма заказа: <span id="orderTotal"></span> рублей.</p>
-            <p>Пожалуйста, направьтесь в выбранный автосалон для оплаты:</p>
-            <p><strong>Адрес автосалона: <span id="dealerAddress"></span></strong></p>
-            <button onclick="closeOrderModal()">Закрыть</button>
+    <div class="car-selection-section">
+        <div class="section-card">
+            <div class="card-header">
+                <h2><i class="fas fa-car-side"></i> Выбор автомобиля</h2>
+                <div class="price-badge">
+                    <span id="carPrice">—</span>
+                </div>
+            </div>
+            
+            <div class="car-preview-container">
+                <div class="car-preview-placeholder">
+                    <i class="fas fa-car"></i>
+                    <p>Выберите модель автомобиля</p>
+                </div>
+                <img id="carPreview" class="car-preview" alt="Превью автомобиля">
+            </div>
+            
+            <div class="selection-grid">
+                <div class="form-group">
+                    <div class="input-label">
+                        <i class="fas fa-tag"></i>
+                        <label for="brand">Марка автомобиля</label>
+                    </div>
+                    <div class="custom-select">
+                        <select id="brand" required onchange="updateModels()">
+                            <option value="">Выберите марку</option>
+                        </select>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-label">
+                        <i class="fas fa-list"></i>
+                        <label for="model">Модель автомобиля</label>
+                    </div>
+                    <div class="custom-select">
+                        <select id="model" required onchange="updateCarDetails()">
+                            <option value="">Выберите модель</option>
+                        </select>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="dealer-section">
+        <div class="section-card">
+            <div class="card-header">
+                <h2><i class="fas fa-map-marker-alt"></i> Способ получения</h2>
+            </div>
+            
+            <div class="delivery-options-container">
+                <div class="delivery-option">
+                    <label class="radio-option selected">
+                        <input type="radio" name="delivery" value="pickup" checked onchange="updateDelivery()">
+                        <div class="option-content">
+                            <i class="fas fa-store"></i>
+                            <div>
+                                <div class="option-title">Самовывоз из автосалона</div>
+                                <div class="option-subtitle">Бесплатно</div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <div class="autosalon-selection">
+                        <div class="form-group">
+                            <div class="input-label">
+                                <i class="fas fa-map-pin"></i>
+                                <label for="dealer">Выберите автосалон</label>
+                            </div>
+                            <div class="custom-select">
+                                <select id="dealer" required onchange="updateMap()">
+                                    <option value="">Выберите автосалон</option>
+                                    <option value="54.348333,48.586111">Автосалон Центральный</option>
+                                    <option value="54.375833,48.584444">Автосалон Северный</option>
+                                    <option value="54.354444,48.366944">Автосалон Западный</option>
+                                    <option value="54.340833,48.399722">Автосалон Южный</option>
+                                    <option value="54.330556,48.366111">Автосалон Восточный</option>
+                                </select>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="delivery-option">
+                    <label class="radio-option">
+                        <input type="radio" name="delivery" value="home" onchange="updateDelivery()">
+                        <div class="option-content">
+                            <i class="fas fa-truck"></i>
+                            <div>
+                                <div class="option-title">Доставка по адресу</div>
+                                <div class="option-subtitle">7 500 руб.</div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <div id="addressField" class="address-selection" style="display: none;">
+                        <div class="form-group">
+                            <div class="input-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <label for="address">Адрес доставки</label>
+                            </div>
+                            <div class="address-input-group">
+                                <div class="input-with-icon">
+                                    <i class="fas fa-home"></i>
+                                    <input type="text" id="address" placeholder="Введите ваш адрес">
+                                </div>
+                                <button type="button" class="location-btn" onclick="detectLocation()">
+                                    <i class="fas fa-location-arrow"></i>
+                                </button>
+                            </div>
+                            <div class="map-hint">Начните вводить адрес или используйте текущее местоположение</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="map" class="map-container">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>Выберите способ получения для отображения карты</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="options-section">
+        <div class="section-card">
+            <div class="card-header">
+                <h2><i class="fas fa-cogs"></i> Дополнительные опции</h2>
+            </div>
+            
+            <div class="form-group">
+                <div class="input-label">
+                    <i class="fas fa-credit-card"></i>
+                    <label for="payment">Способ оплаты</label>
+                </div>
+                <div class="custom-select">
+                    <select id="payment" required>
+                        <option value="">Выберите способ оплаты</option>
+                        <option value="card">Банковская карта</option>
+                        <option value="cash">Наличные</option>
+                        <option value="credit">Кредит</option>
+                        <option value="installment">Рассрочка</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            
+            <div class="options-grid">
+                <div class="options-group">
+                    <h3><i class="fas fa-concierge-bell"></i> Дополнительные услуги</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="checkbox" class="service-option" value="Страхование">
+                            <div class="option-content">
+                                <div class="option-title">Страхование</div>
+                                <div class="option-price">50 000 руб.</div>
+                            </div>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" class="service-option" value="Доп. ТО">
+                            <div class="option-content">
+                                <div class="option-title">Дополнительное ТО</div>
+                                <div class="option-price">30 000 руб.</div>
+                            </div>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" class="service-option" value="Замена шин">
+                            <div class="option-content">
+                                <div class="option-title">Замена шин</div>
+                                <div class="option-price">15 000 руб.</div>
+                            </div>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" class="service-option" value="Премиум страховка">
+                            <div class="option-content">
+                                <div class="option-title">Премиум страховка</div>
+                                <div class="option-price">80 000 руб.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="options-group">
+                    <h3><i class="fas fa-star"></i> Опции автомобиля</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="checkbox" class="feature-option" value="Кожаный салон">
+                            <div class="option-content">
+                                <div class="option-title">Кожаный салон</div>
+                                <div class="option-price">60 000 руб.</div>
+                            </div>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" class="feature-option" value="Навигация">
+                            <div class="option-content">
+                                <div class="option-title">Навигационная система</div>
+                                <div class="option-price">25 000 руб.</div>
+                            </div>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" class="feature-option" value="Премиум аудиосистема">
+                            <div class="option-content">
+                                <div class="option-title">Премиум аудио</div>
+                                <div class="option-price">40 000 руб.</div>
+                            </div>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" class="feature-option" value="Панорамная крыша">
+                            <div class="option-content">
+                                <div class="option-title">Панорамная крыша</div>
+                                <div class="option-price">70 000 руб.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="contact-section">
+        <div class="section-card">
+            <div class="card-header">
+                <h2><i class="fas fa-phone-alt"></i> Контактные данные</h2>
+            </div>
+            
+            <div class="form-group">
+                <div class="input-label">
+                    <i class="fas fa-mobile-alt"></i>
+                    <label for="phone">Номер телефона</label>
+                </div>
+                <div class="input-with-icon">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="phone" placeholder="+7XXXXXXXXXX" required>
+                </div>
+                <div class="hint">Введите номер в формате +7XXXXXXXXXX</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="summary-section">
+        <div class="section-card">
+            <div class="card-header">
+                <h2><i class="fas fa-file-invoice-dollar"></i> Итоговая стоимость</h2>
+            </div>
+            
+            <div class="summary-details">
+                <div class="summary-item">
+                    <div class="summary-label">Автомобиль:</div>
+                    <div class="summary-value" id="carPriceSummary">—</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Услуги:</div>
+                    <div class="summary-value" id="servicePrice">0 руб.</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Опции:</div>
+                    <div class="summary-value" id="insurancePrice">0 руб.</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Доставка:</div>
+                    <div class="summary-value" id="deliveryPrice">0 руб.</div>
+                </div>
+                <div class="summary-total">
+                    <div class="total-label">Итого:</div>
+                    <div class="total-value" id="totalPrice">0 руб.</div>
+                </div>
+            </div>
+            
+            <button id="submit" class="order-btn" onclick="showOrderConfirmation()">
+                <i class="fas fa-check-circle"></i> Оформить заказ
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения заказа -->
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-check-circle success-icon"></i> Ваш заказ оформлен!</h2>
+            <span class="close" onclick="closeOrderModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <div class="order-details">
+                <div class="detail-item">
+                    <div class="detail-label">Номер заказа:</div>
+                    <div class="detail-value">#<span id="orderId">0000</span></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Сумма заказа:</div>
+                    <div class="detail-value"><span id="orderTotal"></span> рублей</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Автосалон:</div>
+                    <div class="detail-value"><span id="dealerAddress"></span></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Способ получения:</div>
+                    <div class="detail-value">
+                        <span id="deliveryMethodText">Самовывоз из автосалона</span>
+                    </div>
+                </div>
+                <div class="detail-item" id="deliveryAddressItem" style="display: none;">
+                    <div class="detail-label">Адрес доставки:</div>
+                    <div class="detail-value"><span id="deliveryAddressText"></span></div>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3><i class="fas fa-info-circle"></i> Дальнейшие действия:</h3>
+                <ol>
+                    <li>Сохраните номер вашего заказа</li>
+                    <li id="deliveryStep">Направьтесь в выбранный автосалон</li>
+                    <li>Предъявите номер заказа менеджеру</li>
+                    <li>Произведите оплату и получите документы</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn secondary" onclick="closeOrderModal()">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
+            <button class="btn primary" onclick="submitOrder()">
+                <i class="fas fa-check"></i> Подтвердить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Загрузка Google Maps API -->
+<script>
+    function loadGoogleMapsAPI() {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initOrderPage`;
+        script.defer = true;
+        script.async = true;
+        document.head.appendChild(script);
+    }
+
+    if (document.readyState === 'complete') {
+        loadGoogleMapsAPI();
+    } else {
+        window.addEventListener('load', loadGoogleMapsAPI);
+    }
+</script>

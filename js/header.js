@@ -10,7 +10,7 @@ async function loadHeader() {
 
     loadHeaderStyles();
     setupLoginForm();
-    updateHeaderCounters();
+    await updateHeaderCounters(); // Добавлен await
     updateAuthUI();
   } catch (err) {
     console.error("Ошибка загрузки заголовка:", err.message);
@@ -41,29 +41,33 @@ function setupLoginForm() {
   }
 }
 
-function updateHeaderCounters() {
-  const state = JSON.parse(localStorage.getItem('futureAutoState')) || { 
-    cart: [], 
-    favorites: [] 
-  };
-  
-  const cartIcon = document.getElementById('cart-icon');
-  const favIcon = document.getElementById('favorites-icon');
-  
-  if (cartIcon) {
-    if (state.cart.length > 0) {
-      cartIcon.setAttribute('data-count', state.cart.length);
-    } else {
-      cartIcon.removeAttribute('data-count');
-    }
-  }
-  
-  if (favIcon) {
-    if (state.favorites.length > 0) {
-      favIcon.setAttribute('data-count', state.favorites.length);
-    } else {
-      favIcon.removeAttribute('data-count');
-    }
+// Новые функции для работы с сервером
+async function loadUserCart() {
+  const response = await fetch('script.php?action=getCart');
+  const cart = await response.json();
+  return cart;
+}
+
+async function loadUserFavorites() {
+  const response = await fetch('script.php?action=getFavorites');
+  return await response.json();
+}
+
+// Обновленная функция счетчиков
+async function updateHeaderCounters() {
+  try {
+    const cart = await loadUserCart();
+    const favorites = await loadUserFavorites();
+    
+    const cartIcon = document.getElementById('cart-icon');
+    const favIcon = document.getElementById('favorites-icon');
+    
+    if (cartIcon && cart.length) cartIcon.setAttribute('data-count', cart.length)
+    else if (cartIcon) cartIcon.removeAttribute('data-count');
+    if (favIcon && favorites.length) favIcon.setAttribute('data-count', favorites.length)
+    else if (favIcon) favIcon.removeAttribute('data-count');  
+  } catch (error) {
+    console.error('Ошибка обновления счетчиков:', error);
   }
 }
 
@@ -143,15 +147,7 @@ window.openLoginModal = function() {
   }
 };
 
-window.closeModal = function(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-};
-
-window.handleLogin = function(e) {
+window.handleLogin = function() {
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
   
@@ -165,60 +161,73 @@ window.handleLogin = function(e) {
     return;
   }
   
-  let state = JSON.parse(localStorage.getItem('futureAutoState')) || {
-    user: null,
-    cart: [],
-    favorites: [],
-    adminUsers: [
-      { email: 'admin@futureauto.com', password: 'admin123' }
-    ]
-  };
-  
-  // Проверка на администратора
-  const adminUser = state.adminUsers.find(u => u.email === email && u.password === password);
-  
-  if (adminUser) {
-    state.user = { 
-      email,
-      name: 'Администратор',
-      isAdmin: true,
-      joinDate: new Date().toLocaleDateString()
-    };
-    localStorage.setItem('futureAutoState', JSON.stringify(state));
-    
-    closeModal('loginModal');
-    updateAuthUI();
-    showNotification('Вы вошли как администратор');
-    return;
-  }
-  
-  // Обычный пользователь
-  state.user = { 
-    email,
-    name: email.split('@')[0],
-    joinDate: new Date().toLocaleDateString()
-  };
-  
-  localStorage.setItem('futureAutoState', JSON.stringify(state));
-  
-  closeModal('loginModal');
-  updateAuthUI();
-  showNotification(`Добро пожаловать, ${state.user.name}!`);
+  // Отправляем запрос на сервер для аутентификации
+  fetch('script.php?action=loginUser', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Ошибка сети');
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.error) {
+      showNotification(data.error, 'error');
+    } else {
+      // Сохраняем минимальные данные пользователя
+      const state = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+      state.user = {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name || email.split('@')[0],
+        isAdmin: data.user.isAdmin || false,
+        joinDate: new Date().toLocaleDateString()
+      };
+      
+      localStorage.setItem('futureAutoState', JSON.stringify(state));
+      
+      closeModal('loginModal');
+      updateAuthUI();
+      showNotification(`Добро пожаловать, ${state.user.name}!`);
+      updateHeaderCounters(); // Обновляем счетчики после входа
+    }
+  })
+  .catch(error => {
+    showNotification('Ошибка сети: ' + error.message, 'error');
+  });
 };
 
 window.logout = function() {
-  const state = JSON.parse(localStorage.getItem('futureAutoState')) || {};
-  state.user = null;
-  localStorage.setItem('futureAutoState', JSON.stringify(state));
-  
-  closeModal('loginModal');
-  updateAuthUI();
-  showNotification('Вы успешно вышли из системы');
+  // Отправляем запрос на сервер для завершения сессии
+  fetch('script.php?action=logout', {
+    method: 'GET',
+    credentials: 'include' // Важно для передачи куки
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Очищаем клиентское состояние
+      const state = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+      state.user = null;
+      localStorage.setItem('futureAutoState', JSON.stringify(state));
+      
+      closeModal('loginModal');
+      updateAuthUI();
+      showNotification('Вы успешно вышли из системы');
+      window.location.href = '#index';
+      updateHeaderCounters();
+    }
+  })
+  .catch(error => {
+    console.error('Ошибка выхода:', error);
+    showNotification('Ошибка при выходе из системы', 'error');
+  });
 };
 
-function showNotification(message, type = 'success') {
-  // Здесь можно реализовать красивые уведомления
-  alert(message);
-}
-
 document.addEventListener('DOMContentLoaded', loadHeader);
+window.updateHeaderCounters = updateHeaderCounters;

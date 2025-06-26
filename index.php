@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="ru">
   <head>
@@ -12,6 +15,6 @@
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div id="main-content"></div>
+    <div id="main-content" style="flex: 1 0 auto;"></div>
   </body>
 </html>

@@ -268,33 +268,6 @@ body {
 .stat-card:nth-child(3) { animation-delay: 0.3s; }
 .stat-card:nth-child(4) { animation-delay: 0.4s; }
 
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4c6ef5;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    transform: translateX(150%);
-    transition: transform 0.3s ease;
-    max-width: 300px;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
-.notification.error {
-    background: #d32f2f;
-}
-
-.notification.success {
-    background: #388e3c;
-}
-
 /* Адаптивность */
 @media (max-width: 1200px) {
     .admin-stats {
@@ -342,4 +315,35 @@ body {
     .admin-header h1 {
     font-size: 28px;
     }
+}
+.message-container {
+    max-width: 300px;
+    position: relative;
+}
+
+.message-full {
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+    border: 1px solid #eee;
+}
+
+.toggle-message {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+
+.toggle-message:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
 }

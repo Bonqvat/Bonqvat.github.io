@@ -14,9 +14,36 @@ function initRegistrationPage() {
         registrationForm.addEventListener('submit', handleFormSubmit);
     }
 
-    const photoInput = document.getElementById('photo');
-    if (photoInput) {
-        photoInput.addEventListener('change', handlePhotoChange);
+    const avatarInput = document.getElementById('avatar');
+    const previewImage = document.getElementById('previewImage');
+    const fileNameElement = document.getElementById('fileName');
+    
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                fileNameElement.textContent = file.name;
+                fileNameElement.style.display = 'block';
+                
+                // Превью изображения
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    fileNameElement.textContent = 'Файл слишком большой (макс. 5MB)';
+                    fileNameElement.style.color = '#dc3545';
+                    this.value = '';
+                    previewImage.src = 'https://randomuser.me/api/portraits/men/32.jpg';
+                } else {
+                    fileNameElement.style.color = '#6c757d';
+                }
+            } else {
+                fileNameElement.style.display = 'none';
+            }
+        });
     }
 
     const successButton = document.querySelector('#successMessage button');
@@ -67,7 +94,8 @@ function initRegistrationPage() {
 
         // Валидация адреса
         const addressInput = document.getElementById('register_address');
-        if (addressInput.value.trim().length < 5) {
+        const address = addressInput.value.trim();
+        if (address.length < 5) {
             showError('addressError', 'Введите адрес');
             addressInput.classList.add('input-error');
             isValid = false;
@@ -97,39 +125,47 @@ function initRegistrationPage() {
             hideError('consentError');
         }
 
-        // Сохранение данных
+        // Отправка данных на сервер
         if (isValid) {
-            const userData = {
-                email,
-                fio,
-                address: addressInput.value,
-                phone,
-                newsletter: document.getElementById('newsletter').checked
-            };
+            // Скрываем предыдущие ошибки
+            hideError('generalError');
 
-            const appState = JSON.parse(localStorage.getItem('futureAutoState')) || {};
-            appState.user = userData;
-            localStorage.setItem('futureAutoState', JSON.stringify(appState));
+            // Создаем FormData для отправки файла
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('name', fio);
+            formData.append('phone', phone);
+            formData.append('address', address);
             
-            showSuccessMessage();
-        }
-    }
-
-    function handlePhotoChange(e) {
-        const fileNameElement = document.getElementById('fileName');
-        if (this.files.length > 0) {
-            fileNameElement.textContent = this.files[0].name;
-            fileNameElement.style.display = 'block';
-            
-            if (this.files[0].size > 5 * 1024 * 1024) {
-                fileNameElement.textContent = 'Файл слишком большой (макс. 5MB)';
-                fileNameElement.style.color = '#dc3545';
-                this.value = '';
-            } else {
-                fileNameElement.style.color = '#6c757d';
+            // Добавляем аватар если выбран
+            const avatarFile = avatarInput.files[0];
+            if (avatarFile && avatarFile.size <= 5 * 1024 * 1024) {
+                formData.append('avatar', avatarFile);
             }
-        } else {
-            fileNameElement.style.display = 'none';
+
+            // Отправляем на сервер
+            fetch('script.php?action=registerUser', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // Показываем ошибку сервера
+                    showError('generalError', data.error);
+                } else {
+                    // Сохраняем только ID пользователя
+                    const appState = JSON.parse(localStorage.getItem('futureAutoState')) || {};
+                    appState.user = { id: data.userId };
+                    localStorage.setItem('futureAutoState', JSON.stringify(appState));
+                    
+                    showSuccessMessage();
+                }
+            })
+            .catch(error => {
+                showError('generalError', 'Ошибка сети. Попробуйте позже.');
+            });
         }
     }
 
