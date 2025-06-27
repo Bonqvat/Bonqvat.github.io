@@ -540,7 +540,7 @@ const cars = [
   }
 ];
 
-const recommendedCarIds = [1, 2, 3, 4,];
+const recommendedCarIds = [1, 2, 3, 9];
 
 const brands = [
   "BMW", "Audi", "Mercedes", "Toyota", "Honda", "Ford", "Chevrolet", "Volkswagen",
